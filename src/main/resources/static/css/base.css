@@ -1,0 +1,225 @@
+/* ============================================================
+   Base — tokens e elementos compartilhados entre as páginas
+   Conceito: ficha/registro (como um livro-caixa de clientes)
+   ============================================================ */
+:root {
+  --bg: #eef1ec;
+  --paper: #fbfbf9;
+  --ink: #1e241f;
+  --ink-soft: #4d564e;
+  --line: #c9d0c6;
+  --forest: #2f6f4e;
+  --forest-dark: #234f38;
+  --forest-tint: #e3ede6;
+  --amber: #b9822f;
+  --amber-tint: #f5e9d6;
+  --clay: #a6432f;
+  --clay-tint: #f4e3de;
+
+  --font-display: "Lora", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+
+  --radius: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 35px,
+    rgba(30, 36, 31, 0.035) 36px
+  );
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 28px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.topbar__brand {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+
+.topbar__nav {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.topbar__link {
+  color: rgba(251, 251, 249, 0.75);
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-bottom: 1px solid transparent;
+}
+
+.topbar__link:hover,
+.topbar__link[aria-current="page"] {
+  color: var(--paper);
+  border-bottom-color: var(--paper);
+}
+
+.topbar__tag {
+  font-size: 0.8rem;
+  color: rgba(251, 251, 249, 0.6);
+}
+
+.page {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+}
+
+.page--largo {
+  max-width: 920px;
+}
+
+/* Botão de ação primária, reutilizável em qualquer página */
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 11px 22px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primario {
+  background: var(--forest);
+  color: var(--paper);
+}
+
+.btn-primario:hover {
+  background: var(--forest-dark);
+}
+
+.btn-secundario {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-soft);
+  padding: 10px 18px;
+}
+
+.btn-secundario:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line);
+  border-top-color: var(--forest);
+  border-radius: 50%;
+}
+
+.htmx-request .spinner {
+  display: inline-block;
+  animation: girar 0.7s linear infinite;
+}
+
+.htmx-request .btn-primario {
+  opacity: 0.7;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+  .btn {
+    transition: none;
+  }
+}
+
+.aviso {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  border: 1px solid transparent;
+}
+
+.aviso--sucesso {
+  background: var(--forest-tint);
+  border-color: var(--forest);
+  color: var(--forest-dark);
+}
+
+.aviso--erro {
+  background: var(--clay-tint);
+  border-color: var(--clay);
+  color: var(--clay);
+}
+
+.aviso__titulo {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.aviso__texto {
+  margin: 0;
+}
+
+.selo {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.selo--ATIVO {
+  background: var(--forest-tint);
+  color: var(--forest-dark);
+}
+
+.selo--INATIVO {
+  background: var(--amber-tint);
+  color: var(--amber);
+}

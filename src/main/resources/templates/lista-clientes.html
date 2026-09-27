@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Clientes cadastrados</title>
+  <link rel="stylesheet" th:href="@{/css/base.css}" href="/css/base.css" />
+  <link rel="stylesheet" th:href="@{/css/lista-clientes.css}" href="/css/lista-clientes.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="topbar__brand">RC · Clientes</span>
+    <nav class="topbar__nav">
+      <a class="topbar__link" th:href="@{/clientes/cadastro}" href="/clientes/cadastro">Cadastro</a>
+      <a class="topbar__link" aria-current="page" th:href="@{/clientes/lista}" href="/clientes/lista">Lista de clientes</a>
+    </nav>
+  </header>
+
+  <main class="page page--largo">
+    <div class="lista__header">
+      <div>
+        <h1 class="lista__titulo">Clientes cadastrados</h1>
+        <p class="lista__subtitulo">
+          Use os filtros abaixo para restringir a busca. Deixe em branco o
+          que não quiser filtrar.
+        </p>
+      </div>
+      <a class="btn btn-primario" th:href="@{/clientes/cadastro}" href="/clientes/cadastro">Novo cliente</a>
+    </div>
+
+    <!--
+      Este form busca a MESMA página (/clientes/lista) tanto no envio normal
+      (sem JS, recarrega tudo) quanto via HTMX (hx-get). O HTMX pede a página
+      inteira, mas hx-select + hx-swap pegam só a div #tabela-clientes de
+      dentro da resposta e substituem apenas ela, sem piscar a tela toda.
+    -->
+    <form
+      class="filtros"
+      method="get"
+      th:action="@{/clientes/lista}"
+      action="/clientes/lista"
+      hx-get="/clientes/lista"
+      hx-select="#tabela-clientes"
+      hx-target="#tabela-clientes"
+      hx-swap="outerHTML"
+      hx-push-url="true"
+      hx-indicator="#indicador-filtro"
+      hx-trigger="submit, change from:find select,
+                  keyup changed delay:500ms from:find input[type='text']"
+    >
+      <div class="campo">
+        <label for="nome">Nome</label>
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          placeholder="Buscar por nome"
+          th:value="${filtro.nome}"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="telefone">Telefone</label>
+        <input
+          type="text"
+          id="telefone"
+          name="telefone"
+          placeholder="Buscar por telefone"
+          th:value="${filtro.telefone}"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option
+            th:each="opcao : ${statusOptions}"
+            th:value="${opcao}"
+            th:text="${opcao}"
+            th:selected="${filtro.status == null ? opcao.name() == 'ATIVO' : filtro.status == opcao}">
+            ATIVO
+          </option>
+        </select>
+      </div>
+
+      <div class="filtros__acoes">
+        <button type="submit" class="btn btn-secundario">Filtrar</button>
+        <a class="filtros__limpar" th:href="@{/clientes/lista}" href="/clientes/lista">Limpar filtros</a>
+        <span id="indicador-filtro" class="spinner htmx-indicator" aria-hidden="true"></span>
+      </div>
+    </form>
+
+    <div id="tabela-clientes" aria-live="polite">
+      <p class="lista__contagem" th:text="${#lists.size(clientes)} + ' cliente(s) encontrado(s)'">
+        0 cliente(s) encontrado(s)
+      </p>
+
+      <p class="lista__vazio" th:if="${#lists.isEmpty(clientes)}">
+        Nenhum cliente encontrado com esses filtros.
+      </p>
+
+      <table class="tabela" th:unless="${#lists.isEmpty(clientes)}">
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Telefone</th>
+            <th scope="col">Status</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--
+            th:each num "th:block" separado de th:replace: o Thymeleaf processa
+            th:insert/th:replace ANTES de th:each na mesma tag, então juntar os
+            dois num único <tr> faz o "cliente" ainda não existir quando o
+            fragmento é resolvido (erro: "call method id() on null context").
+          -->
+          <th:block th:each="cliente : ${clientes}">
+            <tr th:replace="~{fragments/linha-cliente :: linha(cliente=${cliente})}"></tr>
+          </th:block>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</body>
+</html>

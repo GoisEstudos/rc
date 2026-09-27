@@ -1,0 +1,83 @@
+/* ============================================================
+   Cadastro de Cliente — específico desta página
+   (tokens, topo, avisos e botão ficam em base.css)
+   ============================================================ */
+.ficha {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 4px 4px 0 rgba(30, 36, 31, 0.06);
+  overflow: hidden;
+}
+
+.ficha__header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.ficha__titulo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin: 0 0 6px;
+  color: var(--forest-dark);
+}
+
+.ficha__subtitulo {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  max-width: 46ch;
+}
+
+form.ficha__form {
+  padding: 24px 32px 32px;
+  display: grid;
+  gap: 20px;
+}
+
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.campo .dica {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.campo input,
+.campo select {
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+}
+
+.campo input:focus-visible,
+.campo select:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 1px;
+  border-color: var(--forest);
+}
+
+.ficha__acoes {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+#resultado {
+  margin-top: 8px;
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Cadastro de Cliente</title>
+  <link rel="stylesheet" th:href="@{/css/base.css}" href="/css/base.css" />
+  <link rel="stylesheet" th:href="@{/css/cadastro-cliente.css}" href="/css/cadastro-cliente.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="topbar__brand">RC · Clientes</span>
+    <nav class="topbar__nav">
+      <a class="topbar__link" aria-current="page" th:href="@{/clientes/cadastro}" href="/clientes/cadastro">Cadastro</a>
+      <a class="topbar__link" th:href="@{/clientes/lista}" href="/clientes/lista">Lista de clientes</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="ficha">
+      <div class="ficha__header">
+        <h1 class="ficha__titulo">Ficha do cliente</h1>
+        <p class="ficha__subtitulo">
+          Preencha os dados abaixo para registrar um novo cliente. O cadastro
+          é salvo sem sair desta página.
+        </p>
+      </div>
+
+      <form
+        class="ficha__form"
+        hx-post="/clientes/cadastro"
+        hx-target="#resultado"
+        hx-swap="innerHTML"
+        hx-on::after-request="if(event.detail.successful) this.reset()"
+      >
+        <div class="campo">
+          <label for="nome">Nome completo</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            placeholder="Ex: Maria da Silva"
+            autocomplete="name"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label for="telefone">
+            Telefone <span class="dica">(11 dígitos, só números)</span>
+          </label>
+          <input
+            type="tel"
+            id="telefone"
+            name="telefone"
+            placeholder="11999998888"
+            pattern="\d{11}"
+            maxlength="11"
+            inputmode="numeric"
+            autocomplete="tel"
+            required
+          />
+        </div>
+
+        <div class="ficha__acoes">
+          <button type="submit" class="btn btn-primario">Cadastrar cliente</button>
+          <span class="spinner htmx-indicator" aria-hidden="true"></span>
+        </div>
+      </form>
+
+      <div id="resultado" aria-live="polite"></div>
+    </section>
+  </main>
+
+</body>
+</html>

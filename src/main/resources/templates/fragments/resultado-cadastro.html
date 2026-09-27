@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+  <div th:fragment="sucesso" class="aviso aviso--sucesso">
+    <p class="aviso__titulo">Cliente cadastrado</p>
+    <p class="aviso__texto">
+      <strong th:text="${nome}">Nome</strong> foi adicionado com sucesso
+      <span class="selo" th:classappend="'selo--' + ${status}" th:text="${status}">ATIVO</span>
+    </p>
+  </div>
+
+  <div th:fragment="erro" class="aviso aviso--erro">
+    <p class="aviso__titulo">Não foi possível cadastrar</p>
+    <p class="aviso__texto" th:text="${erro}">Mensagem de erro</p>
+  </div>
+
+</body>
+</html>
