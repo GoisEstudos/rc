@@ -1,8 +1,6 @@
-package com.ronaldocortes.rc.dtos.itemDTO;
+package com.ronaldocortes.rc.dtos.itemDtos;
 
 import com.ronaldocortes.rc.entities.Item;
-
-import java.math.BigDecimal;
 
 public record DeletarItemDTO(Long id, String nome, String message) {
     public DeletarItemDTO(Item item) {

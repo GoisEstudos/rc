@@ -1,6 +1,6 @@
 package com.ronaldocortes.rc.services;
 
-import com.ronaldocortes.rc.dtos.itemDTO.*;
+import com.ronaldocortes.rc.dtos.itemDtos.*;
 import com.ronaldocortes.rc.entities.Item;
 import com.ronaldocortes.rc.enuns.StatusItem;
 import com.ronaldocortes.rc.repositories.ItemRepository;

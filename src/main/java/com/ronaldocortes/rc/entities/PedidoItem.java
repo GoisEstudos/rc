@@ -21,19 +21,21 @@ public class PedidoItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer quantidade;
+    @ManyToOne
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
 
     private BigDecimal valorMilheiro;
 
+    private Integer quantidade;
+
+    private BigDecimal valorTotal;
+
     @ManyToOne
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
-    @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
-
-    public BigDecimal calcularSubtotal() {
+    public void calcularSubtotal() {
 
         BigDecimal precoPorPeca = valorMilheiro.divide(
                 BigDecimal.valueOf(1000),
@@ -41,9 +43,10 @@ public class PedidoItem {
                 RoundingMode.HALF_UP
         );
 
-        return precoPorPeca
+        this.valorTotal = precoPorPeca
                 .multiply(BigDecimal.valueOf(quantidade))
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
 }
 

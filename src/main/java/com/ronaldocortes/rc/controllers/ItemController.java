@@ -1,6 +1,6 @@
 package com.ronaldocortes.rc.controllers;
 
-import com.ronaldocortes.rc.dtos.itemDTO.*;
+import com.ronaldocortes.rc.dtos.itemDtos.*;
 import com.ronaldocortes.rc.services.ItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

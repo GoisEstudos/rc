@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,13 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private StatusPedido status = StatusPedido.ATIVO;
+    private StatusPedido status = StatusPedido.ABERTO;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private Cliente cliente;
+
+    private LocalDateTime data = LocalDateTime.now();
 
     private BigDecimal valorTotal;
 
@@ -36,8 +43,20 @@ public class Pedido {
 
     public BigDecimal calcularValorTotal() {
 
-        return itens.stream()
-                .map(PedidoItem::calcularSubtotal)
+        this.valorTotal = itens.stream()
+                .map(PedidoItem::getValorTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return this.valorTotal;
+    }
+
+    public void adicionarItem(PedidoItem item) {
+        itens.add(item);
+        item.setPedido(this);
+    }
+
+    public void removerItem(PedidoItem item) {
+        itens.remove(item);
+        item.setPedido(null);
     }
 }

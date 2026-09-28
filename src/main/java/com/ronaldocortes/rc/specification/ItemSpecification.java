@@ -1,6 +1,6 @@
 package com.ronaldocortes.rc.specification;
 
-import com.ronaldocortes.rc.dtos.itemDTO.FiltroItemDTO;
+import com.ronaldocortes.rc.dtos.itemDtos.FiltroItemDTO;
 import com.ronaldocortes.rc.entities.Item;
 import com.ronaldocortes.rc.enuns.StatusItem;
 import org.springframework.data.jpa.domain.Specification;

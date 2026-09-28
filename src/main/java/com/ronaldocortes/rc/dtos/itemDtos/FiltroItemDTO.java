@@ -1,6 +1,5 @@
-package com.ronaldocortes.rc.dtos.itemDTO;
+package com.ronaldocortes.rc.dtos.itemDtos;
 
-import com.ronaldocortes.rc.entities.Item;
 import com.ronaldocortes.rc.enuns.StatusItem;
 
 import java.math.BigDecimal;
