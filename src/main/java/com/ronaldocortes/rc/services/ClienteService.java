@@ -3,9 +3,11 @@ package com.ronaldocortes.rc.services;
 import com.ronaldocortes.rc.dtos.ClienteDtos.*;
 import com.ronaldocortes.rc.entities.Cliente;
 import com.ronaldocortes.rc.enuns.StatusCliente;
+import com.ronaldocortes.rc.exceptions.ClienteException.ClienteNaoEncontradoException;
 import com.ronaldocortes.rc.repositories.ClienteRepository;
 import com.ronaldocortes.rc.specification.ClienteSpecification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,11 +25,12 @@ public class ClienteService {
     }
 
     public BuscarClientePorIdDTO buscarClientePorId(Long id) {
-        Cliente newCliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente Não Encontrado!"));
+        Cliente newCliente = clienteRepository.findById(id).orElseThrow(() -> new ClienteNaoEncontradoException(id));
 
         return new BuscarClientePorIdDTO(newCliente);
     }
 
+    @Transactional
     public CriarClienteDTO criarCliente(CriarClienteDTO criarClienteDTO) {
         Cliente newCliente = new Cliente();
 
@@ -40,8 +43,9 @@ public class ClienteService {
         return new CriarClienteDTO(newCliente);
     }
 
+    @Transactional
     public AtualizarClienteDTO atualizarCliente(AtualizarClienteDTO atualizarClienteDTO, Long id) {
-        Cliente newCliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não Encontrado!"));
+        Cliente newCliente = clienteRepository.findById(id).orElseThrow(() -> new ClienteNaoEncontradoException(id));
         newCliente.setNome(atualizarClienteDTO.nome() != null ? atualizarClienteDTO.nome() : newCliente.getNome());
 
         newCliente.setTelefone(atualizarClienteDTO.telefone() != null ? atualizarClienteDTO.telefone() : newCliente.getTelefone());
@@ -50,12 +54,11 @@ public class ClienteService {
         return new AtualizarClienteDTO(newCliente);
     }
 
-    public DeletarClienteDTO deletarCliente(Long id) {
-        Cliente newCliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não Encontrado!"));
+    public void deletarCliente(Long id) {
+        Cliente newCliente = clienteRepository.findById(id).orElseThrow(() -> new ClienteNaoEncontradoException(id));
         newCliente.setStatus(StatusCliente.INATIVO);
         clienteRepository.save(newCliente);
 
-        return new DeletarClienteDTO(newCliente);
     }
 
 

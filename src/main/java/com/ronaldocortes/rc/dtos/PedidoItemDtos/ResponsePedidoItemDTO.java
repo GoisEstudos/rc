@@ -10,7 +10,7 @@ public record ResponsePedidoItemDTO(
         Item item,
         BigDecimal valorMilheiro,
         Integer quantidade,
-        BigDecimal valorTotal
+        BigDecimal subTotal
 ) {
 
     public ResponsePedidoItemDTO(PedidoItem pedidoItem) {

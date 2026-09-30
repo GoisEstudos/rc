@@ -2,17 +2,20 @@ package com.ronaldocortes.rc.services;
 
 import com.ronaldocortes.rc.dtos.PedidoDtos.*;
 import com.ronaldocortes.rc.dtos.PedidoItemDtos.CriarPedidoItemDTO;
-import com.ronaldocortes.rc.entities.Cliente;
-import com.ronaldocortes.rc.entities.Item;
-import com.ronaldocortes.rc.entities.Pedido;
-import com.ronaldocortes.rc.entities.PedidoItem;
+import com.ronaldocortes.rc.entities.*;
+import com.ronaldocortes.rc.enuns.OrigemMovimentacao;
 import com.ronaldocortes.rc.enuns.StatusPedido;
+import com.ronaldocortes.rc.enuns.TipoMovimentacao;
+import com.ronaldocortes.rc.exceptions.ClienteException.ClienteNaoEncontradoException;
+import com.ronaldocortes.rc.exceptions.ItemException.ItemNaoEncontradoException;
+import com.ronaldocortes.rc.exceptions.PedidoException.PedidoNaoEncontradoException;
 import com.ronaldocortes.rc.repositories.ClienteRepository;
 import com.ronaldocortes.rc.repositories.ItemRepository;
-import com.ronaldocortes.rc.repositories.PedidoItemRepository;
+import com.ronaldocortes.rc.repositories.MovimentacaoRepository;
 import com.ronaldocortes.rc.repositories.PedidoRepository;
 import com.ronaldocortes.rc.specification.PedidoSpecification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,11 +26,13 @@ public class PedidoService {
     private final ItemRepository itemRepository;
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
+    private final MovimentacaoRepository movimentacaoRepository;
 
-    public PedidoService(ItemRepository itemRepository, PedidoRepository pedidoRepository, ClienteRepository clienteRepository) {
+    public PedidoService(ItemRepository itemRepository, PedidoRepository pedidoRepository, ClienteRepository clienteRepository, MovimentacaoRepository movimentacaoRepository) {
         this.itemRepository = itemRepository;
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
+        this.movimentacaoRepository = movimentacaoRepository;
     }
 
     public List<BuscarTodosPedidosDTO> buscarTodosItem(FiltroPedidoDTO filtroPedidoDTO) {
@@ -35,21 +40,22 @@ public class PedidoService {
     }
 
     public BuscarPedidoPorIdDTO buscarPedidoPorId(Long id) {
-        Pedido newPedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido Não encontrado!"));
-        return new BuscarPedidoPorIdDTO(newPedido);
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
+        return new BuscarPedidoPorIdDTO(pedido);
     }
 
+    @Transactional
     public ResponseCriarPedidoDTO criarPedido(CriarPedidoDTO criarPedidoDTO) {
-        Cliente newCliente = clienteRepository.findById(criarPedidoDTO.clienteId()).orElseThrow(() -> new RuntimeException("Cliente Não encontrado"));
+        Cliente newCliente = clienteRepository.findById(criarPedidoDTO.clienteId()).orElseThrow(() -> new ClienteNaoEncontradoException(criarPedidoDTO.clienteId()));
 
-        Pedido newPedido = new Pedido();
-        newPedido.setCliente(newCliente);
-        newPedido.setData(LocalDateTime.now());
-        newPedido.setStatus(StatusPedido.ABERTO);
+        Pedido pedido = new Pedido();
+        pedido.setCliente(newCliente);
+        pedido.setData(LocalDateTime.now().withNano(0));
+        pedido.setStatus(StatusPedido.ABERTO);
 
         for (CriarPedidoItemDTO itemDto : criarPedidoDTO.itens()) {
             Item item = itemRepository.findById(itemDto.itemId())
-                    .orElseThrow(() -> new RuntimeException("Item Não encontrado!"));
+                    .orElseThrow(() -> new ItemNaoEncontradoException(itemDto.itemId()));
 
             PedidoItem pedidoItem = new PedidoItem();
 
@@ -57,26 +63,39 @@ public class PedidoService {
             pedidoItem.setValorMilheiro(item.getPreco());
             pedidoItem.setQuantidade(itemDto.quantidade());
             pedidoItem.calcularSubtotal();
-            newPedido.adicionarItem(pedidoItem);
+            pedido.adicionarItem(pedidoItem);
         }
 
-        newPedido.calcularValorTotal();
-        pedidoRepository.save(newPedido);
+        pedido.calcularValorTotal();
+        pedidoRepository.save(pedido);
 
-        return new ResponseCriarPedidoDTO(newPedido);
+        return new ResponseCriarPedidoDTO(pedido);
     }
 
-    public AtualizarPedidoDTO atualizarPedido(Long id) {
-        Pedido newPedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido não encontrado!"));
-        newPedido.setStatus(StatusPedido.FECHADO);
-        pedidoRepository.save(newPedido);
-        return new AtualizarPedidoDTO(newPedido);
+    @Transactional
+    public FecharPedidoDTO fecharPedido(Long id) {
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
+        pedido.setStatus(StatusPedido.FECHADO);
+        pedidoRepository.save(pedido);
+
+        Movimentacao movimentacao = new Movimentacao();
+
+        movimentacao.setValor(pedido.getValorTotal());
+        movimentacao.setData(LocalDateTime.now().withNano(0));
+        movimentacao.setDescricao("Recebimento referente ao pedido #" + pedido.getId());
+        movimentacao.setTipo(TipoMovimentacao.ENTRADA);
+        movimentacao.setOrigem(OrigemMovimentacao.PEDIDO);
+        movimentacao.setPedido(pedido);
+
+        movimentacaoRepository.save(movimentacao);
+
+        return new FecharPedidoDTO(pedido);
     }
 
     public void deletarPedido(Long id) {
-        Pedido newPedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido Não encontrado!"));
-
-        pedidoRepository.delete(newPedido);
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
+        pedido.setStatus(StatusPedido.CANCELADO);
+        pedidoRepository.save(pedido);
     }
 
 }

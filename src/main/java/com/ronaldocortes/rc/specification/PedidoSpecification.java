@@ -3,7 +3,6 @@ package com.ronaldocortes.rc.specification;
 import com.ronaldocortes.rc.dtos.PedidoDtos.FiltroPedidoDTO;
 import com.ronaldocortes.rc.entities.Pedido;
 import com.ronaldocortes.rc.entities.PedidoItem;
-import com.ronaldocortes.rc.enuns.StatusItem;
 import com.ronaldocortes.rc.enuns.StatusPedido;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;

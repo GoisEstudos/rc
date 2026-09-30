@@ -22,7 +22,7 @@ public record ResponseCriarPedidoDTO(
                 pedido.getId(),
                 pedido.getStatus(),
                 pedido.getCliente(),
-                pedido.getData(),
+                pedido.getData().withNano(0),
                 pedido.getItens()
                         .stream()
                         .map(ResponsePedidoItemDTO::new)

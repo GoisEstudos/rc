@@ -28,8 +28,8 @@ public class PedidoController {
     }
 
     @PatchMapping("/{id}/fechar")
-    public ResponseEntity<AtualizarPedidoDTO> atualizarPedido(@PathVariable Long id) {
-        return ResponseEntity.status(200).body(pedidoService.atualizarPedido(id));
+    public ResponseEntity<FecharPedidoDTO> fecharPedido(@PathVariable Long id) {
+        return ResponseEntity.status(200).body(pedidoService.fecharPedido(id));
     }
 
     @PostMapping
@@ -37,9 +37,9 @@ public class PedidoController {
         return ResponseEntity.status(201).body(pedidoService.criarPedido(criarPedidoDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/cancelar")
     public void deletarPedido(@PathVariable Long id) {
         pedidoService.deletarPedido(id);
-        ResponseEntity.status(204);
+        ResponseEntity.noContent().build();
     }
 }

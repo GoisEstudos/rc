@@ -1,4 +1,4 @@
-package com.ronaldocortes.rc.dtos.itemDtos;
+package com.ronaldocortes.rc.dtos.ItemDtos;
 
 import com.ronaldocortes.rc.entities.Item;
 

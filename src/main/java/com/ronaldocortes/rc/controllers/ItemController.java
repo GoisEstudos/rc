@@ -1,6 +1,6 @@
 package com.ronaldocortes.rc.controllers;
 
-import com.ronaldocortes.rc.dtos.itemDtos.*;
+import com.ronaldocortes.rc.dtos.ItemDtos.*;
 import com.ronaldocortes.rc.services.ItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,8 @@ public class ItemController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeletarItemDTO> deletarItem(@PathVariable Long id) {
-        return ResponseEntity.status(204).body(itemService.deletarItem(id));
+    public ResponseEntity<Void> deletarItem(@PathVariable Long id) {
+        itemService.deletarItem(id);
+        return ResponseEntity.noContent().build();
     }
 }

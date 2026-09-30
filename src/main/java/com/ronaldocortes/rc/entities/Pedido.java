@@ -24,13 +24,14 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private StatusPedido status = StatusPedido.ABERTO;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    private LocalDateTime data = LocalDateTime.now();
+    private LocalDateTime data = LocalDateTime.now().withNano(0);
 
     private BigDecimal valorTotal;
 

@@ -17,6 +17,7 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private StatusCliente status = StatusCliente.ATIVO;
 
     @NotEmpty(message = "Nome não pode ser vazio ou null")

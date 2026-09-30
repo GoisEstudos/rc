@@ -8,12 +8,13 @@ import com.ronaldocortes.rc.enuns.StatusPedido;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record BuscarPedidoPorIdDTO(StatusPedido status, BuscarClientePorIdDTO cliente, LocalDateTime data, List<ResponsePedidoItemDTO> pedidoItems) {
+public record BuscarPedidoPorIdDTO(Long id, StatusPedido status, BuscarClientePorIdDTO cliente, LocalDateTime data, List<ResponsePedidoItemDTO> pedidoItems) {
     public BuscarPedidoPorIdDTO(Pedido pedido) {
         this(
+                pedido.getId(),
                 pedido.getStatus(),
                 new BuscarClientePorIdDTO(pedido.getCliente()),
-                pedido.getData(),
+                pedido.getData().withNano(0),
                 pedido.getItens().stream().map(ResponsePedidoItemDTO::new).toList()
         );
     }

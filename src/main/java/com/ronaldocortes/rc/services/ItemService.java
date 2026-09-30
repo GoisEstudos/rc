@@ -1,11 +1,13 @@
 package com.ronaldocortes.rc.services;
 
-import com.ronaldocortes.rc.dtos.itemDtos.*;
+import com.ronaldocortes.rc.dtos.ItemDtos.*;
 import com.ronaldocortes.rc.entities.Item;
 import com.ronaldocortes.rc.enuns.StatusItem;
+import com.ronaldocortes.rc.exceptions.ItemException.ItemNaoEncontradoException;
 import com.ronaldocortes.rc.repositories.ItemRepository;
 import com.ronaldocortes.rc.specification.ItemSpecification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,39 +26,39 @@ public class ItemService {
     }
 
     public BuscarItemPorIdDTO buscarItemPorId(Long id) {
-        Item newItem = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item Não encontrado!"));
+        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNaoEncontradoException(id));
 
-        return new BuscarItemPorIdDTO(newItem);
+        return new BuscarItemPorIdDTO(item);
     }
 
+    @Transactional
     public CriarItemDTO criarItem(CriarItemDTO criarItemDTO) {
-        Item newItem = new Item();
+        Item item = new Item();
 
-        newItem.setNomeItem(criarItemDTO.nomeItem());
-        newItem.setPreco(criarItemDTO.preco());
-        newItem.setStatus(criarItemDTO.status() != null ? criarItemDTO.status() : StatusItem.ATIVO);
+        item.setNomeItem(criarItemDTO.nomeItem());
+        item.setPreco(criarItemDTO.preco());
+        item.setStatus(criarItemDTO.status() != null ? criarItemDTO.status() : StatusItem.ATIVO);
 
-        itemRepository.save(newItem);
+        itemRepository.save(item);
 
-        return new CriarItemDTO(newItem);
+        return new CriarItemDTO(item);
     }
 
+    @Transactional
     public AtualizarItemDTO atualizarItem(AtualizarItemDTO atualizarItemDTO, Long id) {
-        Item newItem = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item não encontrado!"));
+        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNaoEncontradoException(id));
 
-        newItem.setNomeItem(atualizarItemDTO.nomeItem() != null ? atualizarItemDTO.nomeItem() : newItem.getNomeItem());
-        newItem.setPreco(atualizarItemDTO.preco() != null ? atualizarItemDTO.preco() : newItem.getPreco());
+        item.setNomeItem(atualizarItemDTO.nomeItem() != null ? atualizarItemDTO.nomeItem() : item.getNomeItem());
+        item.setPreco(atualizarItemDTO.preco() != null ? atualizarItemDTO.preco() : item.getPreco());
 
-        itemRepository.save(newItem);
+        itemRepository.save(item);
 
-        return new AtualizarItemDTO(newItem);
+        return new AtualizarItemDTO(item);
     }
 
-    public DeletarItemDTO deletarItem(Long id) {
-        Item newItem = itemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item não contrado!"));
-        newItem.setStatus(StatusItem.INATIVO);
-        itemRepository.save(newItem);
-
-        return new DeletarItemDTO(newItem);
+    public void deletarItem(Long id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNaoEncontradoException(id));
+        item.setStatus(StatusItem.INATIVO);
+        itemRepository.save(item);
     }
 }

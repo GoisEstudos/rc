@@ -1,6 +1,6 @@
 package com.ronaldocortes.rc.specification;
 
-import com.ronaldocortes.rc.dtos.itemDtos.FiltroItemDTO;
+import com.ronaldocortes.rc.dtos.ItemDtos.FiltroItemDTO;
 import com.ronaldocortes.rc.entities.Item;
 import com.ronaldocortes.rc.enuns.StatusItem;
 import org.springframework.data.jpa.domain.Specification;
@@ -44,7 +44,7 @@ public class ItemSpecification {
             }
 
             return cb.like(
-                    cb.lower(root.get("nome")),
+                    cb.lower(root.get("nomeItem")),
                     "%" + nome.toLowerCase() + "%"
             );
         };
