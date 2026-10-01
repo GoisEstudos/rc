@@ -4,11 +4,17 @@ import com.ronaldocortes.rc.dtos.PedidoDtos.*;
 import com.ronaldocortes.rc.dtos.PedidoItemDtos.CriarPedidoItemDTO;
 import com.ronaldocortes.rc.entities.*;
 import com.ronaldocortes.rc.enuns.OrigemMovimentacao;
+import com.ronaldocortes.rc.enuns.StatusMovimentacao;
 import com.ronaldocortes.rc.enuns.StatusPedido;
 import com.ronaldocortes.rc.enuns.TipoMovimentacao;
 import com.ronaldocortes.rc.exceptions.ClienteException.ClienteNaoEncontradoException;
 import com.ronaldocortes.rc.exceptions.ItemException.ItemNaoEncontradoException;
+import com.ronaldocortes.rc.exceptions.MovimentacaoException.MovimentacaoNaoEncontradaException;
+import com.ronaldocortes.rc.exceptions.MovimentacaoException.MovimentacaoNaoPodeSerCanceladaException;
+import com.ronaldocortes.rc.exceptions.MovimentacaoException.MovimentacaoNaoPodeSerEstornadaException;
 import com.ronaldocortes.rc.exceptions.PedidoException.PedidoNaoEncontradoException;
+import com.ronaldocortes.rc.exceptions.PedidoException.PedidoNaoPodeSerCanceladoException;
+import com.ronaldocortes.rc.exceptions.PedidoException.PedidoNaoPodeSerEstornadoException;
 import com.ronaldocortes.rc.repositories.ClienteRepository;
 import com.ronaldocortes.rc.repositories.ItemRepository;
 import com.ronaldocortes.rc.repositories.MovimentacaoRepository;
@@ -19,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.ronaldocortes.rc.services.MovimentacaoService.validarMovimentacaoManual;
 
 @Service
 public class PedidoService {
@@ -92,9 +100,29 @@ public class PedidoService {
         return new FecharPedidoDTO(pedido);
     }
 
-    public void deletarPedido(Long id) {
-        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
-        pedido.setStatus(StatusPedido.CANCELADO);
+    @Transactional
+    public void estornarPedido(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(() -> new PedidoNaoEncontradoException(pedidoId));
+        Movimentacao movimentacao = movimentacaoRepository.findByPedidoId(pedidoId)
+                .orElseThrow(() -> new MovimentacaoNaoEncontradaException(pedidoId));
+
+        if (movimentacao.getOrigem() != OrigemMovimentacao.PEDIDO) {
+            throw new MovimentacaoNaoPodeSerEstornadaException();
+        }
+
+        if (pedido.getStatus() != StatusPedido.FECHADO) {
+            throw new PedidoNaoPodeSerEstornadoException();
+        }
+
+        if (movimentacao.getStatus() != StatusMovimentacao.FINALIZADA) {
+            throw new MovimentacaoNaoPodeSerEstornadaException();
+        }
+
+        movimentacao.setStatus(StatusMovimentacao.ESTORNADA);
+
+        pedido.setStatus(StatusPedido.ABERTO);
+
+        movimentacaoRepository.save(movimentacao);
         pedidoRepository.save(pedido);
     }
 

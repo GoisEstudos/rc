@@ -37,9 +37,9 @@ public class PedidoController {
         return ResponseEntity.status(201).body(pedidoService.criarPedido(criarPedidoDTO));
     }
 
-    @DeleteMapping("/{id}/cancelar")
-    public void deletarPedido(@PathVariable Long id) {
-        pedidoService.deletarPedido(id);
-        ResponseEntity.noContent().build();
+    @PostMapping("/{id}/estornar")
+    public ResponseEntity<Void> estornarMovimentacao(@PathVariable Long id) {
+        pedidoService.estornarPedido(id);
+        return ResponseEntity.noContent().build();
     }
 }

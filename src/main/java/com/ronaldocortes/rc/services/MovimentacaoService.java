@@ -3,8 +3,11 @@ package com.ronaldocortes.rc.services;
 import com.ronaldocortes.rc.dtos.MovimentacaoDtos.*;
 import com.ronaldocortes.rc.entities.Movimentacao;
 import com.ronaldocortes.rc.enuns.OrigemMovimentacao;
+import com.ronaldocortes.rc.enuns.StatusMovimentacao;
 import com.ronaldocortes.rc.enuns.TipoMovimentacao;
 import com.ronaldocortes.rc.exceptions.MovimentacaoException.MovimentacaoNaoEncontradaException;
+import com.ronaldocortes.rc.exceptions.MovimentacaoException.MovimentacaoNaoPodeSerCanceladaException;
+import com.ronaldocortes.rc.exceptions.MovimentacaoException.MovimentacaoNaoPodeSerEstornadaException;
 import com.ronaldocortes.rc.exceptions.PedidoException.AlterarExcluirMovimentacaoPedidoException;
 import com.ronaldocortes.rc.repositories.MovimentacaoRepository;
 import com.ronaldocortes.rc.specification.MovimentacaoSpecification;
@@ -24,7 +27,9 @@ public class MovimentacaoService {
         this.movimentacaoRepository = movimentacaoRepository;
     }
 
-    public BuscarMovimentacoesResponseDTO buscarTodasMovimentacoes(FiltroMovimentacaoDTO filtroMovimentacao) {
+    public BuscarMovimentacoesResponseDTO buscarTodasMovimentacoes(
+            FiltroMovimentacaoDTO filtroMovimentacao
+    ) {
         List<Movimentacao> movimentacoes =
                 movimentacaoRepository.findAll(
                         MovimentacaoSpecification.comFiltro(filtroMovimentacao)
@@ -35,23 +40,20 @@ public class MovimentacaoService {
                         .map(BuscarTodasMovimentacoesDTO::new)
                         .toList();
 
-        BigDecimal valorTotalEntrada = movimentacoes.stream()
+        List<Movimentacao> movimentacoesFinalizadas =
+                movimentacoes.stream()
+                        .filter(m -> m.getStatus() == StatusMovimentacao.FINALIZADA)
+                        .toList();
+
+        BigDecimal valorTotalEntrada = movimentacoesFinalizadas.stream()
                 .filter(m -> m.getTipo() == TipoMovimentacao.ENTRADA)
                 .map(Movimentacao::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal valorTotalSaida = movimentacoes.stream()
+        BigDecimal valorTotalSaida = movimentacoesFinalizadas.stream()
                 .filter(m -> m.getTipo() == TipoMovimentacao.SAIDA)
                 .map(Movimentacao::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Long quantidadeEntrada = movimentacoes.stream()
-                .filter(m -> m.getTipo() == TipoMovimentacao.ENTRADA)
-                .count();
-
-        Long quantidadeSaida = movimentacoes.stream()
-                .filter(m -> m.getTipo() == TipoMovimentacao.SAIDA)
-                .count();
 
         BigDecimal saldo = valorTotalEntrada.subtract(valorTotalSaida);
 
@@ -102,13 +104,24 @@ public class MovimentacaoService {
         return new AtualizarMoviementacaoDTO(movimentacao);
     }
 
-    public void deletarMovimentacao(Long id) {
-        Movimentacao movimentacao = movimentacaoRepository.findById(id).orElseThrow(() -> new MovimentacaoNaoEncontradaException(id));
-        validarMovimentacaoManual(movimentacao);
-        movimentacaoRepository.delete(movimentacao);
+    @Transactional
+    public void cancelarMovimentacao(Long movimentacaoId) {
+        Movimentacao movimentacao = movimentacaoRepository.findById(movimentacaoId).orElseThrow(() -> new MovimentacaoNaoEncontradaException(movimentacaoId));
+
+        if (movimentacao.getOrigem() != OrigemMovimentacao.MANUAL) {
+            throw new MovimentacaoNaoPodeSerCanceladaException();
+        }
+
+        if (movimentacao.getStatus() != StatusMovimentacao.FINALIZADA) {
+            throw new MovimentacaoNaoPodeSerEstornadaException();
+        }
+
+        movimentacao.setStatus(StatusMovimentacao.CANCELADA);
+
+        movimentacaoRepository.save(movimentacao);
     }
 
-    public void validarMovimentacaoManual(Movimentacao movimentacao) {
+    public static void validarMovimentacaoManual(Movimentacao movimentacao) {
         if (movimentacao.getOrigem() == OrigemMovimentacao.PEDIDO) {
             throw new AlterarExcluirMovimentacaoPedidoException();
         }

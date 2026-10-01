@@ -1,6 +1,7 @@
 package com.ronaldocortes.rc.entities;
 
 import com.ronaldocortes.rc.enuns.OrigemMovimentacao;
+import com.ronaldocortes.rc.enuns.StatusMovimentacao;
 import com.ronaldocortes.rc.enuns.TipoMovimentacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,9 @@ public class Movimentacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private StatusMovimentacao status;
 
     private BigDecimal valor;
 

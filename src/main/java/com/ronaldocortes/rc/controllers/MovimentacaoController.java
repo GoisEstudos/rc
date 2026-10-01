@@ -32,14 +32,14 @@ public class MovimentacaoController {
         return ResponseEntity.status(201).body(movimentacaoService.criarMovimentacao(criarMovimentacao));
     }
 
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelarMovimentacao(@PathVariable Long id) {
+        movimentacaoService.cancelarMovimentacao(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<AtualizarMoviementacaoDTO> atualizarMovimentacao(@RequestBody AtualizarMoviementacaoDTO atualizarMoviementacao, @PathVariable Long id) {
         return ResponseEntity.status(200).body(movimentacaoService.atualizarMoviementacao(atualizarMoviementacao, id));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarMovimentacao(@PathVariable Long id) {
-        movimentacaoService.deletarMovimentacao(id);
-        return ResponseEntity.noContent().build();
     }
 }
